@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="mb-4">Симулятор Финансовой Модели ЖК</h1>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Параметры проекта</div>
+            <div class="card-body">
+                <form id="simulationForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Класс недвижимости</label>
+                            <select class="form-select" name="real_estate_class">
+                                <option value="comfort">Комфорт</option>
+                                <option value="business">Бизнес</option>
+                                <option value="premium">Премиум</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Срок строительства (мес)</label>
+                            <input type="number" class="form-control" name="construction_period_months" value="24">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Рассчитать</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">Результаты Cash Flow</div>
+            <div class="card-body">
+                <table class="table table-bordered" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Месяц</th>
+                            <th>Тип</th>
+                            <th>Поступления</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('simulationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Здесь будет логика сбора данных с формы, формирование JSON
+            // и отправка fetch-запроса на бэкенд, затем рендер таблицы
+        });
+    </script>
+</body>
+</html>
