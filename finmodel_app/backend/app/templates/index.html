@@ -2,61 +2,363 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
+    <title>Финансовая модель ЖК</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .section-header { background: #f8f9fa; padding: 12px; font-weight: bold; margin-top: 25px; border-left: 4px solid #0d6efd; border-radius: 4px; }
+        .year-row { background-color: #e2e3e5 !important; font-weight: bold; border-top: 2px solid #6c757d; }
+        .month-row { cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #dee2e6; }
+        .month-row:hover { background-color: #f1f8ff; }
+        .detail-row { display: none; background-color: #ffffff; font-size: 0.85rem; border-bottom: 1px dashed #dee2e6; }
+        .season-col { width: 8.33%; padding: 4px; }
+        .table-container { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); border-radius: 8px; overflow: hidden; background: #fff;}
+        .cover-page { font-family: 'Times New Roman', serif; padding: 40px; background: #fff; border: 1px solid #ccc; min-height: 297mm; }
+        .cover-table th, .cover-table td { border: 1px solid #000; padding: 8px; }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
-        <h1 class="mb-4">Симулятор Финансовой Модели ЖК</h1>
+    <div class="container py-5">
+        <h2 class="mb-4 text-primary">Параметры финансовой модели</h2>
 
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">Параметры проекта</div>
-            <div class="card-body">
-                <form id="simulationForm">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Класс недвижимости</label>
-                            <select class="form-select" name="real_estate_class">
-                                <option value="comfort">Комфорт</option>
-                                <option value="business">Бизнес</option>
-                                <option value="premium">Премиум</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Срок строительства (мес)</label>
-                            <input type="number" class="form-control" name="construction_period_months" value="24">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Рассчитать</button>
-                </form>
+        <form id="mainForm" class="card shadow-sm p-4 border-0">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Класс объекта</label>
+                    <select class="form-select" id="re_class">
+                        <option value="comfort">Комфорт</option>
+                        <option value="business">Бизнес</option>
+                        <option value="premium">Премиум</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Строительство (мес)</label>
+                    <input type="number" class="form-control" id="const_period" value="24">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Срок продаж (мес)</label>
+                    <input type="number" class="form-control" id="sales_period" value="24">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Локация</label>
+                    <input type="text" class="form-control" id="loc_link" placeholder="URL участка">
+                </div>
             </div>
-        </div>
 
-        <div class="card shadow-sm">
-            <div class="card-header">Результаты Cash Flow</div>
-            <div class="card-body">
-                <table class="table table-bordered" id="resultsTable">
-                    <thead>
+            <div class="section-header">Площади, цены и темпы продаж</div>
+            <div class="table-responsive">
+                <table class="table table-sm mt-3 align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <th>Месяц</th>
                             <th>Тип</th>
-                            <th>Поступления</th>
+                            <th>Площадь (м²)</th>
+                            <th>Кол-во</th>
+                            <th>Цена за м²</th>
+                            <th>Старт продаж</th>
+                            <th>Темпы по годам (%)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        </tbody>
+                        <tr>
+                            <td>Жилье</td>
+                            <td><input type="number" class="form-control form-control-sm" id="res_a" value="10000"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="res_q" value="200"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="res_p" value="1500"></td>
+                            <td><input type="date" class="form-control form-control-sm" id="res_d" value="2026-05-01"></td>
+                            <td><input type="text" class="form-control form-control-sm" id="res_paces" value="50, 30, 20"></td>
+                        </tr>
+                        <tr>
+                            <td>Коммерция</td>
+                            <td><input type="number" class="form-control form-control-sm" id="com_a" value="1200"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="com_q" value="12"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="com_p" value="2500"></td>
+                            <td><input type="date" class="form-control form-control-sm" id="com_d" value="2026-08-01"></td>
+                            <td><input type="text" class="form-control form-control-sm" id="com_paces" value="20, 50, 30"></td>
+                        </tr>
+                        <tr>
+                            <td>Кладовки</td>
+                            <td><input type="number" class="form-control form-control-sm" id="sto_a" value="350"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="sto_q" value="70"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="sto_p" value="600"></td>
+                            <td><input type="date" class="form-control form-control-sm" id="sto_d" value="2026-05-01"></td>
+                            <td><input type="text" class="form-control form-control-sm" id="sto_paces" value="0, 50, 50"></td>
+                        </tr>
+                        <tr>
+                            <td>Паркинг</td>
+                            <td><input type="number" class="form-control form-control-sm" id="par_a" value="2000"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="par_q" value="100"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="par_p" value="800"></td>
+                            <td><input type="date" class="form-control form-control-sm" id="par_d" value="2026-10-01"></td>
+                            <td><input type="text" class="form-control form-control-sm" id="par_paces" value="10, 40, 50"></td>
+                        </tr>
+                    </tbody>
                 </table>
+            </div>
+
+            <div class="section-header">Коэффициенты сезонности</div>
+            <div class="d-flex flex-wrap mt-2">
+                <script>
+                    for(let i=1; i<=12; i++) {
+                        document.write(`<div class="season-col text-center"><small class="text-muted">M${i}</small><input type="number" step="0.1" class="form-control form-control-sm season-val" data-m="${i}" value="1.0"></div>`);
+                    }
+                </script>
+            </div>
+
+            <div class="section-header">Условия реализации</div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-2"><label class="small fw-bold">100% оплата (%)</label><input type="number" class="form-control" id="pct_100" value="40"></div>
+                <div class="col-md-2"><label class="small fw-bold">Ипотека (%)</label><input type="number" class="form-control" id="pct_mort" value="40"></div>
+                <div class="col-md-2"><label class="small fw-bold">Рассрочка (%)</label><input type="number" class="form-control" id="pct_inst" value="20"></div>
+                <div class="col-md-3"><label class="small fw-bold">Тип рассрочки</label><select class="form-select" id="inst_type"><option value="fixed">Фиксированная (18 мес)</option><option value="until_end">До кадастра (дин. срок)</option></select></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100 mt-4 shadow-sm">Рассчитать финансовый поток</button>
+        </form>
+
+        <div class="mt-5 table-container d-none" id="resultsContainer">
+            <ul class="nav nav-tabs bg-light pt-2 px-2" id="resultTabs" role="tablist">
+                <li class="nav-item" role="presentation"><button class="nav-link active" id="table-tab" data-bs-toggle="tab" data-bs-target="#tab-table" type="button" role="tab">Таблица потоков</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="chart-tab" data-bs-toggle="tab" data-bs-target="#tab-chart" type="button" role="tab">График поступлений</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="cover-tab" data-bs-toggle="tab" data-bs-target="#tab-cover" type="button" role="tab">Лицевой лист отчета</button></li>
+            </ul>
+
+            <div class="tab-content p-0" id="resultTabsContent">
+                <div class="tab-pane fade show active" id="tab-table" role="tabpanel">
+                    <table class="table table-hover mb-0" id="resultTable">
+                        <thead class="table-light"><tr><th style="width: 20%">Период</th><th style="width: 50%">Тип операции</th><th class="text-end" style="width: 30%">Сумма (у.е.)</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade p-4" id="tab-chart" role="tabpanel">
+                    <canvas id="cashFlowChart" height="100"></canvas>
+                </div>
+
+                <div class="tab-pane fade p-4" id="tab-cover" role="tabpanel">
+                    <button class="btn btn-success mb-3" onclick="exportWord()">Скачать в формате Word (.doc)</button>
+                    <div id="coverPageContent" class="cover-page">
+                        <h1 style="text-align: center; margin-bottom: 40px;">Паспорт проекта ЖК</h1>
+                        <h3 style="margin-bottom: 20px;">Ключевые показатели</h3>
+                        <table class="cover-table" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                            <tbody>
+                                <tr><td><strong>Класс объекта:</strong></td><td id="cv_class"></td></tr>
+                                <tr><td><strong>Срок строительства (мес):</strong></td><td id="cv_const"></td></tr>
+                                <tr><td><strong>Срок продаж (мес):</strong></td><td id="cv_sales"></td></tr>
+                                <tr><td><strong>Расчетная выручка (у.е.):</strong></td><td id="cv_revenue"></td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3 style="margin-bottom: 20px;">Структура реализуемых площадей</h3>
+                        <table class="cover-table" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                            <thead>
+                                <tr style="background-color: #f2f2f2;"><th>Тип</th><th>Площадь (м²)</th><th>Лотов (шт)</th><th>Средняя цена (у.е./м²)</th></tr>
+                            </thead>
+                            <tbody id="cv_properties"></tbody>
+                        </table>
+
+                        <h3 style="margin-bottom: 20px;">Поступления по годам</h3>
+                        <table class="cover-table" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                            <thead>
+                                <tr style="background-color: #f2f2f2;"><th>Год</th><th>Сумма (у.е.)</th></tr>
+                            </thead>
+                            <tbody id="cv_yearly_revenue"></tbody>
+                            <tfoot>
+                                <tr style="font-weight: bold;"><td>Итого</td><td id="cv_total_yearly"></td></tr>
+                            </tfoot>
+                        </table>
+
+                        <h3 style="margin-bottom: 20px;">Структура поступлений по типам помещений</h3>
+                        <table class="cover-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #f2f2f2;"><th>Тип помещения</th><th>Сумма (у.е.)</th><th>Доля (%)</th></tr>
+                            </thead>
+                            <tbody id="cv_type_revenue"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('simulationForm').addEventListener('submit', async (e) => {
+        let chartInstance = null;
+        let lastPayload = null;
+
+        document.getElementById('mainForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Здесь будет логика сбора данных с формы, формирование JSON
-            // и отправка fetch-запроса на бэкенд, затем рендер таблицы
+            const getFloat = (id) => parseFloat(document.getElementById(id).value) || 0;
+            const getInt = (id) => parseInt(document.getElementById(id).value) || 0;
+            const getPaces = (id) => document.getElementById(id).value.split(',').map(v => parseFloat(v.trim()) || 0);
+
+            const payment_methods = [];
+            if (getFloat('pct_100') > 0) payment_methods.push({method_type: '100_percent', share_percentage: getFloat('pct_100')});
+            if (getFloat('pct_mort') > 0) payment_methods.push({method_type: 'mortgage', share_percentage: getFloat('pct_mort')});
+            if (getFloat('pct_inst') > 0) payment_methods.push({method_type: 'installment', share_percentage: getFloat('pct_inst'), installment_type: document.getElementById('inst_type').value, installment_months: 18});
+
+            const payload = {
+                real_estate_class: document.getElementById('re_class').options[document.getElementById('re_class').selectedIndex].text,
+                sales_period_months: getInt('sales_period'),
+                construction_period_months: getInt('const_period'),
+                properties: [
+                    {property_type: 'Жилье', total_area: getFloat('res_a'), price_per_sqm: getFloat('res_p'), sales_start_date: document.getElementById('res_d').value, total_units: getInt('res_q'), yearly_sales_paces: getPaces('res_paces')},
+                    {property_type: 'Коммерция', total_area: getFloat('com_a'), price_per_sqm: getFloat('com_p'), sales_start_date: document.getElementById('com_d').value, total_units: getInt('com_q'), yearly_sales_paces: getPaces('com_paces')},
+                    {property_type: 'Кладовки', total_area: getFloat('sto_a'), price_per_sqm: getFloat('sto_p'), sales_start_date: document.getElementById('sto_d').value, total_units: getInt('sto_q'), yearly_sales_paces: getPaces('sto_paces')},
+                    {property_type: 'Паркинг', total_area: getFloat('par_a'), price_per_sqm: getFloat('par_p'), sales_start_date: document.getElementById('par_d').value, total_units: getInt('par_q'), yearly_sales_paces: getPaces('par_paces')}
+                ].filter(p => p.total_area > 0),
+                seasonalities: Array.from(document.querySelectorAll('.season-val')).map(i => ({month_number: parseInt(i.dataset.m), coefficient: parseFloat(i.value) || 1.0})),
+                payment_methods: payment_methods
+            };
+
+            lastPayload = payload;
+
+            const response = await fetch('/api/v1/simulation/calculate-cashflow', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            const res = await response.json();
+            if (response.ok) {
+                document.getElementById('resultsContainer').classList.remove('d-none');
+                renderTable(res.data);
+                renderChart(res.data);
+                renderCoverPage(res.data, payload);
+            } else {
+                alert("Ошибка валидации: " + JSON.stringify(res.detail));
+            }
         });
+
+        function renderTable(data) {
+            const tbody = document.querySelector('#resultTable tbody');
+            tbody.innerHTML = '';
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4">Нет данных.</td></tr>';
+                return;
+            }
+            const months = [...new Set(data.map(d => d.cash_flow_date))].sort();
+            let currentYear = null, yearSum = 0;
+
+            months.forEach(m => {
+                const year = m.split('-')[0];
+                const monthData = data.filter(d => d.cash_flow_date === m);
+                const monthTotal = monthData.reduce((s, d) => s + d.amount, 0);
+
+                if (currentYear && year !== currentYear) { addYearRow(tbody, currentYear, yearSum); yearSum = 0; }
+                currentYear = year; yearSum += monthTotal;
+
+                const tr = document.createElement('tr');
+                tr.className = 'month-row';
+                tr.innerHTML = `<td class="fw-bold">${m}</td><td>Общие поступления</td><td class="text-end fw-bold">${monthTotal.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                tr.onclick = () => document.querySelectorAll(`.details-${m}`).forEach(el => el.style.display = (el.style.display === 'table-row') ? 'none' : 'table-row');
+                tbody.appendChild(tr);
+
+                monthData.forEach(d => {
+                    const dr = document.createElement('tr');
+                    dr.className = `detail-row details-${m}`;
+                    dr.innerHTML = `<td></td><td class="text-muted ps-4">${d.type}</td><td class="text-end text-muted">${d.amount.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                    tbody.appendChild(dr);
+                });
+            });
+            if (currentYear) addYearRow(tbody, currentYear, yearSum);
+        }
+
+        function addYearRow(parent, year, total) {
+            const tr = document.createElement('tr');
+            tr.className = 'year-row';
+            tr.innerHTML = `<td colspan="2">ИТОГО ЗА ${year} ГОД</td><td class="text-end">${total.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+            parent.appendChild(tr);
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('cashFlowChart').getContext('2d');
+            const labels = [...new Set(data.map(d => d.cash_flow_date))].sort();
+            const amounts = labels.map(m => data.filter(d => d.cash_flow_date === m).reduce((s, d) => s + d.amount, 0));
+
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Поступления (Cash In)',
+                        data: amounts,
+                        backgroundColor: 'rgba(13, 110, 253, 0.5)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function renderCoverPage(data, payload) {
+            const totalRevenue = data.reduce((sum, d) => sum + d.amount, 0);
+
+            document.getElementById('cv_class').innerText = payload.real_estate_class;
+            document.getElementById('cv_const').innerText = payload.construction_period_months;
+            document.getElementById('cv_sales').innerText = payload.sales_period_months;
+            document.getElementById('cv_revenue').innerText = totalRevenue.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            const propsTbody = document.getElementById('cv_properties');
+            propsTbody.innerHTML = '';
+
+            payload.properties.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${p.property_type}</td><td>${p.total_area.toLocaleString('ru-RU')}</td><td>${p.total_units}</td><td>${p.price_per_sqm.toLocaleString('ru-RU')}</td>`;
+                propsTbody.appendChild(tr);
+            });
+
+            const yearlyData = {};
+            data.forEach(d => {
+                const year = d.cash_flow_date.split('-')[0];
+                yearlyData[year] = (yearlyData[year] || 0) + d.amount;
+            });
+
+            const yearlyTbody = document.getElementById('cv_yearly_revenue');
+            yearlyTbody.innerHTML = '';
+            Object.keys(yearlyData).sort().forEach(year => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${year}</td><td>${yearlyData[year].toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                yearlyTbody.appendChild(tr);
+            });
+            document.getElementById('cv_total_yearly').innerText = totalRevenue.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            const typeData = {};
+            data.forEach(d => {
+                const baseType = d.type.split(' (')[0];
+                typeData[baseType] = (typeData[baseType] || 0) + d.amount;
+            });
+
+            const typeTbody = document.getElementById('cv_type_revenue');
+            typeTbody.innerHTML = '';
+            Object.keys(typeData).sort().forEach(type => {
+                const amount = typeData[type];
+                const percentage = totalRevenue > 0 ? ((amount / totalRevenue) * 100).toFixed(2) : 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${type}</td><td>${amount.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td>${percentage}%</td>`;
+                typeTbody.appendChild(tr);
+            });
+        }
+
+        function exportWord() {
+            const content = document.getElementById('coverPageContent').innerHTML;
+            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Отчет</title></head><body>";
+            const footer = "</body></html>";
+            const sourceHTML = header + content + footer;
+
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = 'FinModel_Passport.doc';
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        }
     </script>
 </body>
 </html>
